@@ -36,115 +36,118 @@ const winningCombos = [
 ]
 
 /*---------------------------- Variables (state) ----------------------------*/
-let board = ["X", "X", "X", "", "", "", "", "", ""]
-
-let turn = "X"
-let winner = false
-let tie = false
+let board;
+let turn;
+let winner;
+let tie;
 
 
 /*------------------------ Cached Element References ------------------------*/
 const squareEls = document.querySelectorAll(".sqr")
 const messageEl = document.querySelector("#message")
-
+const resetBtnEl = document.querySelector("#reset")
 
 /*-------------------------------- Functions --------------------------------*/
 
 
+const placePiece = (index) => {
+    board[index] = turn;
+}
+
 const updateBoard = () =>{
     board.forEach((element, index) => {
-        if(element === "X"){
+        if(element === "X" ) {
             squareEls[index].textContent = "X"
-        }
-        else if(element === "O"){
-            squareEls[index].textContent ="O"
+        } else if (element === "O" ){
+            squareEls[index].textContent = "O"
         }else{
             squareEls[index].textContent = ""
         }
-    })}
+    })
+}
 
 const updateMessage = () => {
-    if((winner === false) && (tie === false)){
-        messageEl.textContent = turn;
-    } else if ((winner === false) && (tie === true)) { 
-        messageEl.textContent = "This game was a tie!";
+    if (!winner && !tie) {
+        if (turn === 'X') {
+            messageEl.textContent = "It's X's turn";
+        }else{ messageEl.textContent = "It's 0's turn";
+        }
+    }else if(!winner & tie) {
+        messageEl.textContent = "It's a tie"
     } else {
-        messageEl.textContent = "Congratulations You Are Vicorious. All hail the tick-tack-toe Champion!"
+        if (turn === "X") {
+            messageEl.textContent = "X wins"
+        }else{
+            messageEl.textContent = "O wins"
+        }
     }
+}
+
+const checkForWinner = () => {
+    if (
+        (board[0] !== '' && board[0] === board[1] && board[0] === board [2]) ||
+        (board[3] !== '' && board[3] === board[4] && board[3] === board[5]) ||
+        (board[6] !== '' && board[6] === board[7] && board[6] === board[8]) ||
+        (board[0] !== '' && board[0] === board[3] && board[0] === board[6]) ||
+        (board[1] !== '' && board[1] === board[4] && board[1] === board[7]) ||
+        (board[2] !== '' && board[2] === board[5] && board[2] === board[8]) ||
+        (board[0] !== '' && board[0] === board[4] && board[0] === board[8]) ||
+        (board[2] !== '' && board[2] === board[4] && board[2] === board[6])
+    ) {
+        winner = true;
     }
+}
+    
+const switchPlayerTurn = () => {
+    if (winner) {
+        return
+    }
+    if (turn === 'X') {
+        turn = 'O'
+    } else {
+        turn = 'X'
+    }
+}
+const checkForTie = () => {
+    if (winner){
+        return;
+    }
+    if (!board.includes('')){
+        tie = true;
+    }
+}
+
 const render = () => {
     updateBoard()
     updateMessage()
 }
-const init = () => {
-    render()
-}
-
-init()
 
 
 const handleClick = (event) => {
     const squareIndex = event.target.id;
-    console.log(squareIndex)
-    if(winner === true || board[squareIndex] !=="")
-        placePiece[squareIndex] === " "
-        //checkForWinner()    
-    return;
-}
-
-const placePiece = (index) =>{
-    board[index] = turn;
-    console.log(board)
-}
-
-const checkForWinner = () => {
-    winningCombos.forEach((winningCombo) => {
-        console.log(winningCombo[0])
-        check1 = board[winningCombo[0]]
-        console.log(check1)
-        check2 = board[winningCombo[1]]
-        console.log(check2)
-        check3 = board[winningCombo[2]]
-        console.log(check3)
-        if (check1 !== "" && check1 === check2 && check1 === check3){
-            winner = true
-        } else {
-            winner = false
-        }})}
-checkForWinner()
-console.log("winner " + winner)
-const checkForTie = () => {
-    if (winner === true || check1 === "") {
-        tie = false
-    } else {
-        tie = true
-        return tie
+    const squareIsFull = board[squareIndex] !== ""
+    if (squareIsFull || winner) {
+        return;
     }
+    placePiece(squareIndex)
+    checkForWinner()
+    checkForTie()
+    switchPlayerTurn()
+    render()
 }
-checkForTie()
-console.log("tie " + tie)
 
+const init = () => {
+    board = ["", "", "", "", "", "", "", "", ""]
+    turn = "X"
+    winner = false
+    tie = false
+    render()
+}
+init()
 /*----------------------------- Event Listeners -----------------------------*/
 
 squareEls.forEach((square) => {
     square.addEventListener('click', handleClick)
 })
 
-
-// winner === false ? console.log("winner " + winner) : null;
-// board.includes("", 0) ? console.log("No Empty Strings Here") : null;
-
-// winningCombos.forEach((winningCombo) => {
-//     check1 = board[winningCombo[0]]
-//     console.log(check1)
-//     check2 = board[winningCombo[1]]
-//     console.log(check2)
-//     check3 = board[winningCombo[2]]
-//     console.log(check3)
-//     if (check1 !== "" && check1 === check2 && check1 === check3) {
-//         winner = true
-//         break;
-//     } else {
-//         winner = false
-//     }
-// })}
+resetBtnEl.addEventListener('click', init)
